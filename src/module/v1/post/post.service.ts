@@ -79,7 +79,9 @@ export class PostService {
       throw new NotFoundException('Post not found');
     }
 
-    return post;
+    const likes = await this.likeModel.find({ post: post._id });
+
+    return { post, likes };
   }
 
   async toggleLike(postId, requestData) {
