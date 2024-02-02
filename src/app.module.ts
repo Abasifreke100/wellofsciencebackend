@@ -9,6 +9,7 @@ import { UserModule } from './module/v1/user/user.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { SpacesModule } from './module/v1/spaces/spaces.module';
 import { PostModule } from './module/v1/post/post.module';
+import { CommentsModule } from './module/v1/comment/comments.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PostModule } from './module/v1/post/post.module';
     AuthModule,
     SpacesModule,
     PostModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [AppService],
