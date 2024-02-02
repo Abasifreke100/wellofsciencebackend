@@ -22,6 +22,7 @@ import { Roles } from '../../../common/decorator/roles.decorator';
 import {
   POST_CREATED,
   POST_DELETED,
+  POST_LIKE,
   POST_UPDATED,
 } from '../../../common/constants/post.constant';
 
@@ -80,5 +81,12 @@ export class PostController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.postService.delete(id);
+  }
+
+  @ResponseMessage(POST_LIKE)
+  @Public()
+  @Post('/like/:id')
+  async toggleLike(@Param('id') id: string, @Body() requestData) {
+    return await this.postService.toggleLike(id, requestData);
   }
 }
