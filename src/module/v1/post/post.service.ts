@@ -3,16 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { SpacesService } from '../spaces/spaces.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './schema/post.schema';
+import { Like, LikeDocument } from './schema/like.schema';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post.name)
     private postModel: Model<PostDocument>,
+
+    @InjectModel(Like.name)
+    private likeModel: Model<LikeDocument>,
     private spacesService: SpacesService,
   ) {}
 
@@ -35,7 +39,7 @@ export class PostService {
   }
 
   async paginate(query: any) {
-    let { currentPage, size, sort } = query;
+    let { currentPage, size, sort, name } = query;
 
     currentPage = Number(currentPage) ? parseInt(currentPage) : 1;
     size = Number(size) ? parseInt(size) : 10;
@@ -46,9 +50,14 @@ export class PostService {
     delete query.sort;
     delete query.type;
 
-    const count = await this.postModel.count();
+    const nameQuery = name ? { name: { $regex: new RegExp(name, 'i') } } : {};
+
+    const count = await this.postModel.countDocuments({
+      ...query,
+      ...nameQuery,
+    });
     const response = await this.postModel
-      .find()
+      .find({ ...query, ...nameQuery })
       .skip(size * (currentPage - 1))
       .limit(size)
       .sort({ createdAt: sort });
@@ -71,6 +80,46 @@ export class PostService {
     }
 
     return post;
+  }
+
+  async toggleLike(postId, requestData) {
+    const { status } = requestData;
+
+    // Find the existing like document for the post
+    const existingLike = await this.likeModel.findOne({ post: postId });
+
+    if (existingLike) {
+      // If the like document already exists, update the total based on the status
+      if (status === 1) {
+        existingLike.total += 1;
+      } else if (status === 0 && existingLike.total > 0) {
+        existingLike.total -= 1;
+      }
+
+      await existingLike.save();
+    } else {
+      // If the like document doesn't exist, create a new one
+      const newLike = new this.likeModel({
+        post: postId,
+        total: status === 1 ? 1 : 0,
+      });
+      await newLike.save();
+    }
+
+    // Calculate the total likes for the post
+    const totalLikes = await this.likeModel.aggregate([
+      {
+        $match: { post: new mongoose.Types.ObjectId(postId) },
+      },
+      {
+        $group: {
+          _id: null,
+          totalLikes: { $sum: '$total' },
+        },
+      },
+    ]);
+
+    return { totalLikes: totalLikes.length > 0 ? totalLikes[0].totalLikes : 0 };
   }
 
   async update(id, requestData, files: any) {
