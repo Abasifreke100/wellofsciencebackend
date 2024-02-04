@@ -30,4 +30,6 @@ export class CommentsController {
   async paginate(@Param('id') id: string, @Query() query) {
     return await this.commentsService.paginate(id, query);
   }
+
+
 }
