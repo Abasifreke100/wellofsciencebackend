@@ -1,13 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comments, CommentsDocument } from './schema/comments.schema';
+import { Reply, ReplyDocument } from './schema/reply.schema';
+import {
+  ReplyResponse,
+  ReplyResponseDocument,
+} from './schema/reply-response.schema';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectModel(Comments.name)
     private commentsModel: Model<CommentsDocument>,
+
+    @InjectModel(Reply.name)
+    private replyModel: Model<ReplyDocument>,
+
+    @InjectModel(ReplyResponse.name)
+    private replyResponseModel: Model<ReplyResponseDocument>,
   ) {}
 
   async create(requestData) {
@@ -45,5 +56,31 @@ export class CommentsService {
         size,
       },
     };
+  }
+
+  async delete(id) {
+    // Find the comment
+    const comment = await this.commentsModel.findById(id);
+
+    // Check if the comment exists
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    // Find all replies associated with the comment
+    const replies = await this.replyModel.find({ comments: id });
+
+    // Loop through each reply to delete associated reply responses
+    for (const reply of replies) {
+      await this.replyResponseModel.deleteMany({ reply: reply._id });
+    }
+
+    // Delete all replies associated with the comment
+    await this.replyModel.deleteMany({ comments: id });
+
+    // Delete the comment
+    await comment.deleteOne();
+
+    return;
   }
 }
