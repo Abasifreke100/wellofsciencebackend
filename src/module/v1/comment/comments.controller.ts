@@ -1,15 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get, Param,
-  Post,
-  Query
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { ResponseMessage } from '../../../common/decorator/response.decorator';
 import { CommentsService } from './comments.service';
 import { Public } from '../../../common/decorator/public.decorator';
 import {
   COMMENTS_CREATED,
+  COMMENTS_DELETED,
   COMMENTS_FETCH,
 } from '../../../common/constants/comments.constant';
 
@@ -31,5 +26,10 @@ export class CommentsController {
     return await this.commentsService.paginate(id, query);
   }
 
-
+  @ResponseMessage(COMMENTS_DELETED)
+  @Delete(':id')
+  @Public()
+  async delete(@Param('id') id: string) {
+    return await this.commentsService.delete(id);
+  }
 }
