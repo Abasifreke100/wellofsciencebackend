@@ -8,6 +8,10 @@ export class CreateReplyDto {
   @IsNotEmpty()
   @IsString()
   response: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 }
 
 export class ReplyResponseDto {
@@ -18,4 +22,8 @@ export class ReplyResponseDto {
   @IsNotEmpty()
   @IsString()
   response: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 }
