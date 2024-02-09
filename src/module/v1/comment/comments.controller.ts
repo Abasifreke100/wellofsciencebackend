@@ -32,4 +32,11 @@ export class CommentsController {
   async delete(@Param('id') id: string) {
     return await this.commentsService.delete(id);
   }
+
+  @ResponseMessage(COMMENTS_FETCH)
+  @Get('count/:id')
+  @Public()
+  async commentCount(@Param('id') id: string) {
+    return await this.commentsService.commentCount(id);
+  }
 }

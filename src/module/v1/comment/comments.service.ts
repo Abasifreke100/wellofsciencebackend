@@ -83,4 +83,9 @@ export class CommentsService {
 
     return;
   }
+
+  async commentCount(id) {
+    const count = await this.commentsModel.countDocuments({ post: id });
+    return count;
+  }
 }
