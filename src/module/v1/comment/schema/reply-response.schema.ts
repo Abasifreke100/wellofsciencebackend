@@ -10,6 +10,9 @@ export type ReplyResponseDocument = ReplyResponse &
 @Schema({ timestamps: true })
 export class ReplyResponse {
   @Prop()
+  name: string;
+
+  @Prop()
   response: string;
 
   @Prop({
