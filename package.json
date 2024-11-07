@@ -34,7 +34,7 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^10.1.0",
-    "@nestjs/passport": "^9.0.0",
+    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.2.10",
     "@nestjs/platform-fastify": "^10.2.10",
     "@nestjs/schedule": "^2.2.0",
